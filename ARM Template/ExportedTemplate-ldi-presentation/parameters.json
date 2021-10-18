@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "sites_ldi_presentation_name": {
+            "value": null
+        },
+        "components_ldi_presentation_name": {
+            "value": null
+        },
+        "storageAccounts_ldifunctionapp_name": {
+            "value": null
+        },
+        "serverfarms_ASP_ldipresentation_9754_name": {
+            "value": null
+        },
+        "actionGroups_Application_Insights_Smart_Detection_name": {
+            "value": null
+        },
+        "smartdetectoralertrules_failure_anomalies___ldi_presentation_name": {
+            "value": null
+        },
+        "workspaces_DefaultWorkspace_534ecc7c_7ae2_46ca_b60a_39eb97dd90db_NEU_externalid": {
+            "value": null
+        }
+    }
+}

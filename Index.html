@@ -1,0 +1,122 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tug of war</title>
+    <!-- Latest compiled and minified CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <style type="text/css">
+        
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row h-100">
+            <div class="col-md-1">
+                <input class="btn btn-success" type="button" value="Vote" onclick="vote('team1')" />
+            </div>
+            <div class="col-md-9">
+                <div class="progress mt-2">
+                    <div id="team1" 
+                            class="progress-bar bg-success" 
+                            style="width: 50%"
+                            aria-valuenow="50"
+                            aria-valuemin="0"
+                            aria-valuemax="100">
+                    </div>
+                    <div id="team2" 
+                            class="progress-bar bg-warning progress-bar-striped progress-bar-animated" 
+                            style="width: 50%"
+                            aria-valuenow="50"
+                            aria-valuemin="0"
+                            aria-valuemax="100">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-1">
+                <input class="btn btn-warning" type="button" value="Vote" onclick="vote('team2')" />
+            </div>
+        </div>
+        <div class="col-md-4 px-0">
+            <img src="tug-qr.png" class="img-fluid" />
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        var config = {
+            function_url: "https://ldi-presentation.azurewebsites.net/api/vote/"
+        };
+        var teams = {
+            team1: {
+                name: "Pomidory",
+                clickCount: 0,
+                percentage: 50
+            },
+            team2: {
+                name: "Ogorki",
+                clickCount: 0,
+                percentage: 50
+            }
+        };
+        var ht1 = $('#team1')
+        var ht2 = $('#team2')
+        function init() {
+            ht1.text(teams.team1.name);
+            ht2.text(teams.team2.name);
+        }
+        function refreshPercentage() {
+            teams.team1.percentage = teams.team2.clickCount == 0 ? 100 : teams.team1.clickCount * 100 / teams.team2.clickCount;
+            teams.team2.percentage = teams.team1.clickCount == 0 ? 100 : teams.team2.clickCount * 100 / teams.team1.clickCount;
+        }
+        function updatePage() {
+            ht1.text(`${teams.team1.name} ${teams.team1.clickCount}`);
+            ht2.text(`${teams.team2.name} ${teams.team2.clickCount}`);
+            ht1.css("width", `${teams.team1.percentage}%`);
+            ht2.css("width", `${teams.team2.percentage}%`);
+        }
+        var interval = 1000;  // 1000 = 1 second, 3000 = 3 seconds
+        function updateTeams() {
+            $.ajax({
+                type: 'GET',
+                url: config.function_url + teams.team1.name,
+                success: function (data) {
+                    teams.team1.clickCount = data.count;
+                    refreshPercentage();
+                    updatePage();
+                }
+            });
+            $.ajax({
+                type: 'GET',
+                url: config.function_url + teams.team2.name,
+                success: function (data) {
+                    teams.team2.clickCount = data.count;
+                    refreshPercentage();
+                    updatePage();
+                },
+                complete: function (_) {
+                    setTimeout(updateTeams(), interval);
+                }
+            });
+        }
+        function vote(team) {
+            $.ajax({
+                type: 'POST',
+                url: config.function_url + teams[team].name,
+                success: function (_) {
+                    teams[team].clickCount++;
+                    refreshPercentage();
+                    updatePage();
+                }
+            })
+        }
+        init();
+        setTimeout(updateTeams, interval);
+    </script>
+</body>
+</html>
